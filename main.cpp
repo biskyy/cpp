@@ -6,74 +6,84 @@
 
 using namespace std;
 
-int main(){
-
-  fstream fileIn;
-  int nrCerinta, nrLini, nrColoane, nrMine, minCtrMine = 0, maxCtrMine = 0, maxLinie;
-  fileIn.open("deminare.in", ios::in);
-
-  if(!fileIn.is_open()) {
-    return 1;
-  }
+int main() {
+  vector<long long int> nums;
+  bool pCurr, pPrev;
+  long long int n, controlDigit = 0, st = 0, dr = 0;
+  int c, pDifLen = 0, pDifMaxLen = 0, pDifCount = 0;
   string temp;
-  getline(fileIn, temp); // line 1
-  nrCerinta = atoi(temp.c_str()); // se citeste V
+  fstream input;
 
-  getline (fileIn, temp); // line 2
-  char * pch = strtok(&temp[0], " ");
-  for (int i = 0; pch != NULL; i++) {
-    i == 0 ? nrLini = atoi(pch): nrColoane = atoi(pch); // se citeste nr de lini si coloane
-    pch = strtok(NULL, " ");
+  input.open("pdif.in", ios::in);
+  if (!input.is_open()) {
+    return -1;
   }
 
-  getline (fileIn, temp); // line 3
-  nrMine = atoi(temp.c_str()); // se citeste nr de mine
+  getline(input, temp);
+  char * firstLine = strtok(&temp[0], " ");
+  for (int i = 0; firstLine != NULL; i++) {
+    i == 0 ? n = atoi(firstLine) : c = atoi(firstLine); 
+    firstLine = strtok(NULL, " ");
+  }
 
-  int matrice[nrLini][nrColoane];
+  getline(input, temp);
+  char * secondLine = strtok(&temp[0], " ");
+  for (int i = 0; secondLine != NULL; i++) {
+    nums.push_back(atoi(secondLine));
+    secondLine = strtok(NULL, " ");
+  }
+  input.close();
 
-  for (int i = 0; i < nrLini; i++)
-    for(int j = 0; j < nrColoane; j++)
-      matrice[i][j] = 0;
-
-  int tempX, tempY;
-  while(getline(fileIn, temp)){
-    char * pchTemp = strtok(&temp[0], " ");
-    for (int i = 0; pchTemp != NULL; i++) {
-      i == 0 ? tempX = atoi(pchTemp) : tempY = atoi(pchTemp); // se citeste nr de lini si coloane
-      pchTemp = strtok(NULL, " ");
+  for (int i = 0; i < nums.size(); i++) {
+    while (nums[i] > 0) {
+      controlDigit += nums[i]%10;
+      nums[i] /= 10;
     }
-    matrice[tempX - 1][tempY - 1] = 1;
-
+    nums[i] = controlDigit;
+    controlDigit = 0;
+    if (nums[i] > 10)
+      i--;
   }
 
-  for (int i = 0; i < nrLini; i++){
-    for(int j = 0; j < nrColoane; j++){
-      cout << matrice[i][j] << " ";
+  nums[0]%2 == 0 ? pPrev = 0 : pPrev = 1;
+  nums[1]%2 == 0 ? pCurr = 0 : pCurr = 1;
+
+  for (int i = 1; i < nums.size(); i++) {
+    if(pCurr != pPrev) {
+      
+      if (pDifCount == 0)
+        pDifCount++;
+      pDifLen++;
+      
+      if (pDifCount < 2)
+        st = i;
+      
+      if(pDifLen > pDifMaxLen)
+        pDifMaxLen = pDifLen;
+    } else if (pDifLen == pDifMaxLen) {
+      pDifCount++;
+    } else {
+      pDifLen = 0;
+      if (pDifCount < 2) 
+        dr = i;
     }
-    cout << endl;
-  }
-  
-  fileIn.close();
 
-  if (nrCerinta == 1) {
-    for (int i = 0; i < nrLini; i++) {
-      for (int j = 0; j < nrColoane; j++) {
-        if (matrice[i][j] == 1)
-          minCtrMine++;
-      }
-      if (minCtrMine > maxCtrMine) {
-        maxLinie = i;
-        maxCtrMine = minCtrMine;
-      }
-      minCtrMine = 0;
-    }
+    nums[i]%2 == 0 ? pPrev = 0 : pPrev = 1;
+    nums[i + 1]%2 == 0 ? pCurr = 0 : pCurr = 1;
   }
-  maxLinie++;
 
-  fstream fileOut;
-  fileOut.open("deminare.out", ios::out);
-  fileOut << maxLinie;
-  fileOut.close();
+  if (c == 1) {
+    cout << pDifMaxLen << endl;
+    cout << pDifCount;
+  }
+
+  if (c == 2) {
+    cout << st << " " << dr;
+  }
+
+  // for (int digit : nums) {
+  //   cout << digit << endl;
+  // }
 
   return 0;
 }
