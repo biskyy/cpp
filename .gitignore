@@ -6,3 +6,5 @@
 /print.o
 /test.cpp
 /test.exe
+*.in
+*.out
